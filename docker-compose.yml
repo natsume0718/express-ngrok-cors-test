@@ -7,21 +7,35 @@ networks:
   express:
 
 services:
-  nginx:
-    image: nginx:stable-alpine
-    container_name: nginx
+  app_first:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file: .env
+    environment:
+      - TZ=Asia/Tokyo
+      - DEBUG=app:*
     ports:
-      - ${APP_PORT:-80}:80
+      - 8080:3000
+    tty: true
     volumes:
-      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
-      - ./nginx/logs:/var/log/nginx
+      - ./src:/app:cached
     networks:
       - express
-    depends_on:
-      - app
 
-  app:
+  ngrok_first:
+    image: wernight/ngrok:latest
+    ports:
+      - 4040:4040
+    environment:
+      NGROK_PROTOCOL: http
+      NGROK_PORT: app_first:3000
+    depends_on:
+      - app_first
+    networks:
+      - express
+
+  app_second:
     build:
       context: .
       dockerfile: Dockerfile
@@ -30,20 +44,21 @@ services:
       - TZ=Asia/Tokyo
       - DEBUG=app:*
     tty: true
+    ports:
+      - 8888:3000
     volumes:
-      - ./src:/app:cached
+      - ./src2:/app:cached
     networks:
       - express
 
-  ngrok:
+  ngrok_second:
     image: wernight/ngrok:latest
     ports:
-      - 4040:4040
+      - 4041:4040
     environment:
       NGROK_PROTOCOL: http
-      NGROK_PORT: nginx:80
-      NGROK_AUTH: ${NGROK_AUTH}
+      NGROK_PORT: app_second:3000
     depends_on:
-      - nginx
+      - app_second
     networks:
       - express
