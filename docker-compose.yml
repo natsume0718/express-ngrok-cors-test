@@ -23,18 +23,6 @@ services:
     networks:
       - express
 
-  ngrok_first:
-    image: wernight/ngrok:latest
-    ports:
-      - 4040:4040
-    environment:
-      NGROK_PROTOCOL: http
-      NGROK_PORT: app_first:3000
-    depends_on:
-      - app_first
-    networks:
-      - express
-
   app_second:
     build:
       context: .
@@ -51,7 +39,7 @@ services:
     networks:
       - express
 
-  ngrok_second:
+  ngrok:
     image: wernight/ngrok:latest
     ports:
       - 4041:4040
