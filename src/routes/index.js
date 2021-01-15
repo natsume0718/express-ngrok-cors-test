@@ -1,11 +1,14 @@
 var express = require('express');
 var router = express.Router();
 
-/* GET home page. */
 router.get('/', function(req, res, next) {
-  // res.append('Set-Cookie', 'foo=bar; Path=/; HttpOnly');
-  res.cookie('hello', 'world', { httpOnly: true })
-  res.render('index', { title: 'Express' });
+  res.render('index', { title: 'Express POST' });
+});
+
+router.post('/', function(req, res, next) {
+  res.header('Access-Control-Allow-Origin', 'https://7c61732d7f26.ngrok.io');
+  res.header("Access-Control-Allow-Method", "x-custom");
+  res.send('hello');
 });
 
 module.exports = router;
